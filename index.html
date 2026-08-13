@@ -100,26 +100,33 @@ function esc(s) {
   return d.innerHTML;
 }
 
-// ---- jsonblob sync ----
+// ---- jsonbin.io sync ----
+var JSONBIN_KEY = "$2a$10$4L/6IqRkVYuAAiqBbLeJpOLcT/Q7SjhpKVObMTwj/kNhByj.4zHUG";
 function createBlob(data) {
-  return fetch("https://jsonblob.com/api/jsonBlob", {
+  return fetch("https://api.jsonbin.io/v3/b", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_KEY, "X-Bin-Private": "false" },
     body: JSON.stringify(data),
   }).then(function (res) {
-    var loc = res.headers.get("Location") || res.headers.get("location");
-    if (loc) return loc.split("/").pop();
-    throw new Error("no location header");
+    if (!res.ok) throw new Error("create failed");
+    return res.json();
+  }).then(function (json) {
+    if (json && json.metadata && json.metadata.id) return json.metadata.id;
+    throw new Error("no bin id in response");
   });
 }
 function getBlob(id) {
-  return fetch("https://jsonblob.com/api/jsonBlob/" + id, { headers: { Accept: "application/json" } })
-    .then(function (res) { if (!res.ok) throw new Error("not found"); return res.json(); });
+  return fetch("https://api.jsonbin.io/v3/b/" + id + "/latest", {
+    headers: { "X-Master-Key": JSONBIN_KEY },
+  }).then(function (res) {
+    if (!res.ok) throw new Error("not found");
+    return res.json();
+  }).then(function (json) { return json.record; });
 }
 function putBlob(id, data) {
-  return fetch("https://jsonblob.com/api/jsonBlob/" + id, {
+  return fetch("https://api.jsonbin.io/v3/b/" + id, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_KEY },
     body: JSON.stringify(data),
   });
 }
