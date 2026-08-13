@@ -4,117 +4,120 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <title>Driver's Road</title>
-<link rel="icon" href="data:,">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600;700&display=swap');
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; background: #15171C; color: #EDEDED; font-family: 'Inter', system-ui, sans-serif; }
-  .oswald { font-family: 'Oswald', 'Inter', sans-serif; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+  html, body { background: #15171C; color: #EDEDED; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .oswald { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; letter-spacing: 0.5px; }
   button { font-family: inherit; }
-  input, select, textarea { font-family: inherit; }
   ::-webkit-scrollbar { display: none; }
+  #root { min-height: 100vh; }
 </style>
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#F2C230;">Loading the road...</div></div>
 
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+(function () {
+"use strict";
 
-<script type="text/babel" data-presets="react">
-const { useState, useEffect, useCallback, useRef } = React;
-
-const ICON = {
+var ICON = {
   lock: "\uD83D\uDD12", check: "\u2705", flame: "\uD83D\uDD25", star: "\u2B50",
   starEmpty: "\u2606", chevron: "\u203A", award: "\uD83C\uDFC6", car: "\uD83D\uDE97",
-  moon: "\uD83C\uDF19", rain: "\uD83C\uDF27\uFE0F", pin: "\uD83D\uDCCD", compass: "\uD83E\uDDED",
-  close: "\u2715", copy: "\uD83D\uDCCB",
+  pin: "\uD83D\uDCCD", close: "\u2715", copy: "\uD83D\uDCCB",
 };
 
-const STAGES = [
+var STAGES = [
   { id: 1, name: "Cockpit Basics", tag: "Foundations", skills: [
     { id: "mirrors", name: "Mirror & seat setup" },
     { id: "blindspot", name: "Blind spot checks" },
-    { id: "controls", name: "Dash & control familiarity" },
-  ]},
+    { id: "controls", name: "Dash & control familiarity" } ] },
   { id: 2, name: "Low-Speed Control", tag: "Empty Lot", skills: [
     { id: "smoothstart", name: "Smooth starts & stops" },
     { id: "steering", name: "Steering control" },
-    { id: "backing", name: "Backing up straight" },
-  ]},
+    { id: "backing", name: "Backing up straight" } ] },
   { id: 3, name: "Neighborhood Driving", tag: "Quiet Streets", skills: [
     { id: "stopsigns", name: "Stop sign discipline" },
     { id: "rightturns", name: "Right turns" },
-    { id: "speedctrl", name: "Speed control 25-35mph" },
-  ]},
+    { id: "speedctrl", name: "Speed control 25-35mph" } ] },
   { id: 4, name: "Intersections & Turns", tag: "Decision Points", skills: [
     { id: "fourway", name: "Four-way stops" },
     { id: "unprotected", name: "Unprotected left turns" },
-    { id: "yielding", name: "Yielding right of way" },
-  ]},
+    { id: "yielding", name: "Yielding right of way" } ] },
   { id: 5, name: "Moderate Traffic Roads", tag: "Arterials", skills: [
     { id: "lights", name: "Traffic light judgment" },
     { id: "lanechange", name: "Lane changes" },
-    { id: "merging", name: "Basic merging" },
-  ]},
+    { id: "merging", name: "Basic merging" } ] },
   { id: 6, name: "Parking Mastery", tag: "Precision", skills: [
     { id: "perpendicular", name: "Perpendicular parking" },
     { id: "angle", name: "Angle parking" },
     { id: "parallel", name: "Parallel parking" },
-    { id: "threepoint", name: "Three-point turn" },
-  ]},
+    { id: "threepoint", name: "Three-point turn" } ] },
   { id: 7, name: "Highway Driving", tag: "Open Road", skills: [
     { id: "onramp", name: "On-ramp merging" },
     { id: "offramp", name: "Off-ramp exiting" },
-    { id: "following", name: "Following distance at speed" },
-  ]},
+    { id: "following", name: "Following distance at speed" } ] },
   { id: 8, name: "Complex Conditions", tag: "Weather & Dark", skills: [
     { id: "night", name: "Night driving" },
     { id: "rain", name: "Wet road handling" },
-    { id: "rushhour", name: "Rush hour traffic" },
-  ]},
+    { id: "rushhour", name: "Rush hour traffic" } ] },
   { id: 9, name: "Defensive & Emergency", tag: "Reflexes", skills: [
     { id: "scanning", name: "Hazard scanning" },
     { id: "suddenstop", name: "Sudden stop response" },
-    { id: "distraction", name: "Distraction discipline" },
-  ]},
+    { id: "distraction", name: "Distraction discipline" } ] },
   { id: 10, name: "Solo Readiness", tag: "Final Stretch", skills: [
     { id: "errand", name: "Mock independent errand" },
-    { id: "longdrive", name: "Longer cumulative drive" },
-  ]},
+    { id: "longdrive", name: "Longer cumulative drive" } ] },
 ];
 
-const REPS_TO_CLEAR = 3;
-const COMFORT_TO_CLEAR = 4;
+var REPS_TO_CLEAR = 3;
+var COMFORT_TO_CLEAR = 4;
 
-const BADGES = [
-  { id: "first_drive", name: "First Mile", desc: "Logged your first session", check: (s) => s.length >= 1 },
-  { id: "streak3", name: "Three in a Row", desc: "3-day practice streak", check: (s, streak) => streak >= 3 },
-  { id: "parallel_pro", name: "Parallel Parking Pro", desc: "Cleared parallel parking", check: (s, streak, cleared) => cleared.has("parallel") },
-  { id: "highway_hero", name: "Highway Hero", desc: "Cleared stage 7", check: (s, streak, cleared, stagesDone) => stagesDone.has(7) },
-  { id: "night_owl", name: "Night Owl", desc: "Cleared night driving", check: (s, streak, cleared) => cleared.has("night") },
-  { id: "solo_ready", name: "Solo Ready", desc: "Cleared all 10 stages", check: (s, streak, cleared, stagesDone) => stagesDone.size >= 10 },
+var BADGES = [
+  { id: "first_drive", name: "First Mile", desc: "Logged your first session", check: function (s) { return s.length >= 1; } },
+  { id: "streak3", name: "Three in a Row", desc: "3-day practice streak", check: function (s, streak) { return streak >= 3; } },
+  { id: "parallel_pro", name: "Parallel Parking Pro", desc: "Cleared parallel parking", check: function (s, streak, cleared) { return cleared.has("parallel"); } },
+  { id: "highway_hero", name: "Highway Hero", desc: "Cleared stage 7", check: function (s, streak, cleared, stagesDone) { return stagesDone.has(7); } },
+  { id: "night_owl", name: "Night Owl", desc: "Cleared night driving", check: function (s, streak, cleared) { return cleared.has("night"); } },
+  { id: "solo_ready", name: "Solo Ready", desc: "Cleared all 10 stages", check: function (s, streak, cleared, stagesDone) { return stagesDone.size >= 10; } },
 ];
 
-// ---- jsonblob sync layer (no login required) ----
-async function createBlob(data) {
-  const res = await fetch("https://jsonblob.com/api/jsonBlob", {
+// ---- state ----
+var state = {
+  syncCode: null,
+  sessions: [],
+  status: "boot",
+  tab: "map",
+  logOpen: false,
+  selectedStageId: null,
+  showCode: false,
+  error: null,
+  logDraft: null,
+};
+
+function esc(s) {
+  var d = document.createElement("div");
+  d.textContent = s == null ? "" : String(s);
+  return d.innerHTML;
+}
+
+// ---- jsonblob sync ----
+function createBlob(data) {
+  return fetch("https://jsonblob.com/api/jsonBlob", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Accept": "application/json" },
     body: JSON.stringify(data),
+  }).then(function (res) {
+    var loc = res.headers.get("Location") || res.headers.get("location");
+    if (loc) return loc.split("/").pop();
+    throw new Error("no location header");
   });
-  const loc = res.headers.get("Location") || res.headers.get("location");
-  if (loc) return loc.split("/").pop();
-  throw new Error("Could not create sync code");
 }
-async function getBlob(id) {
-  const res = await fetch("https://jsonblob.com/api/jsonBlob/" + id, { headers: { Accept: "application/json" } });
-  if (!res.ok) throw new Error("not found");
-  return res.json();
+function getBlob(id) {
+  return fetch("https://jsonblob.com/api/jsonBlob/" + id, { headers: { Accept: "application/json" } })
+    .then(function (res) { if (!res.ok) throw new Error("not found"); return res.json(); });
 }
-async function putBlob(id, data) {
-  await fetch("https://jsonblob.com/api/jsonBlob/" + id, {
+function putBlob(id, data) {
+  return fetch("https://jsonblob.com/api/jsonBlob/" + id, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -122,140 +125,48 @@ async function putBlob(id, data) {
 }
 
 function getUrlSyncCode() {
-  const params = new URLSearchParams(window.location.search);
+  var params = new URLSearchParams(window.location.search);
   return params.get("sync");
 }
 
-function App() {
-  const [syncCode, setSyncCode] = useState(null);
-  const [sessions, setSessions] = useState([]);
-  const [status, setStatus] = useState("boot"); // boot | setup | ready | error
-  const [tab, setTab] = useState("map");
-  const [logOpen, setLogOpen] = useState(false);
-  const [selectedStage, setSelectedStage] = useState(null);
-  const [showCode, setShowCode] = useState(false);
-  const [error, setError] = useState(null);
-  const pollRef = useRef(null);
-
-  useEffect(() => {
-    const urlCode = getUrlSyncCode();
-    const storedCode = localStorage.getItem("driver-sync-code");
-    const code = urlCode || storedCode;
-    if (code) {
-      localStorage.setItem("driver-sync-code", code);
-      setSyncCode(code);
-    } else {
-      setStatus("setup");
-    }
-  }, []);
-
-  const loadData = useCallback(async (code) => {
-    try {
-      const data = await getBlob(code);
-      setSessions(data.sessions || []);
-      setStatus("ready");
-    } catch (e) {
-      setError("Couldn't find that family code. Check it and try again.");
-      setStatus("setup");
-      localStorage.removeItem("driver-sync-code");
-      setSyncCode(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (syncCode) loadData(syncCode);
-  }, [syncCode]);
-
-  // poll for updates from other devices
-  useEffect(() => {
-    if (!syncCode) return;
-    pollRef.current = setInterval(() => loadData(syncCode), 20000);
-    const onFocus = () => loadData(syncCode);
-    document.addEventListener("visibilitychange", onFocus);
-    return () => {
-      clearInterval(pollRef.current);
-      document.removeEventListener("visibilitychange", onFocus);
-    };
-  }, [syncCode, loadData]);
-
-  const createFamilyCode = async () => {
-    setStatus("boot");
-    try {
-      const code = await createBlob({ sessions: [] });
-      localStorage.setItem("driver-sync-code", code);
-      setSyncCode(code);
-    } catch (e) {
-      setError("Couldn't create a family code. Check your connection and try again.");
-      setStatus("setup");
-    }
-  };
-
-  const joinFamilyCode = async (code) => {
-    if (!code.trim()) return;
-    localStorage.setItem("driver-sync-code", code.trim());
-    setSyncCode(code.trim());
-    setStatus("boot");
-  };
-
-  const addSession = async (entry) => {
-    const next = [...sessions, { ...entry, id: Date.now(), date: new Date().toISOString() }];
-    setSessions(next);
-    setLogOpen(false);
-    try {
-      await putBlob(syncCode, { sessions: next });
-    } catch (e) {
-      setError("Saved locally, but couldn't sync. Check connection.");
-    }
-  };
-
-  if (status === "boot") {
-    return <CenterMsg>Loading the road...</CenterMsg>;
-  }
-
-  if (status === "setup") {
-    return <SetupScreen onCreate={createFamilyCode} onJoin={joinFamilyCode} error={error} />;
-  }
-
-  // --- derived stats ---
-  const repsBySkill = {};
-  const comfortBySkill = {};
-  sessions.forEach((s) => {
-    (s.skillIds || []).forEach((sk) => {
+// ---- derived calcs ----
+function computeDerived() {
+  var repsBySkill = {}, comfortBySkill = {};
+  state.sessions.forEach(function (s) {
+    (s.skillIds || []).forEach(function (sk) {
       repsBySkill[sk] = (repsBySkill[sk] || 0) + 1;
       if (!comfortBySkill[sk]) comfortBySkill[sk] = [];
       comfortBySkill[sk].push(s.parentComfort);
     });
   });
-  const avgComfort = (sk) => {
-    const arr = comfortBySkill[sk];
-    if (!arr || arr.length === 0) return 0;
-    return arr.reduce((a, b) => a + b, 0) / arr.length;
-  };
-  const skillCleared = (sk) => (repsBySkill[sk] || 0) >= REPS_TO_CLEAR && avgComfort(sk) >= COMFORT_TO_CLEAR;
-
-  const clearedSkillSet = new Set();
-  STAGES.forEach((st) => st.skills.forEach((sk) => { if (skillCleared(sk.id)) clearedSkillSet.add(sk.id); }));
-
-  const stageCleared = (stage) => stage.skills.every((sk) => clearedSkillSet.has(sk.id));
-  const stageUnlocked = (stage) => {
-    const idx = STAGES.findIndex((s) => s.id === stage.id);
+  function avgComfort(sk) {
+    var arr = comfortBySkill[sk];
+    if (!arr || !arr.length) return 0;
+    return arr.reduce(function (a, b) { return a + b; }, 0) / arr.length;
+  }
+  function skillCleared(sk) { return (repsBySkill[sk] || 0) >= REPS_TO_CLEAR && avgComfort(sk) >= COMFORT_TO_CLEAR; }
+  var clearedSkillSet = new Set();
+  STAGES.forEach(function (st) { st.skills.forEach(function (sk) { if (skillCleared(sk.id)) clearedSkillSet.add(sk.id); }); });
+  function stageCleared(stage) { return stage.skills.every(function (sk) { return clearedSkillSet.has(sk.id); }); }
+  function stageUnlocked(stage) {
+    var idx = STAGES.findIndex(function (s) { return s.id === stage.id; });
     if (idx === 0) return true;
     return stageCleared(STAGES[idx - 1]);
-  };
-  const stagesDoneSet = new Set(STAGES.filter(stageCleared).map((s) => s.id));
-  const currentStage = STAGES.find((st) => stageUnlocked(st) && !stageCleared(st)) || STAGES[STAGES.length - 1];
+  }
+  var stagesDoneSet = new Set(STAGES.filter(stageCleared).map(function (s) { return s.id; }));
+  var currentStage = STAGES.find(function (st) { return stageUnlocked(st) && !stageCleared(st); }) || STAGES[STAGES.length - 1];
 
-  const totalXP = sessions.reduce((sum, s) => sum + (s.durationMin || 0) + (s.skillIds || []).length * 15, 0);
-  const level = Math.max(1, Math.floor(totalXP / 200) + 1);
-  const xpIntoLevel = totalXP % 200;
+  var totalXP = state.sessions.reduce(function (sum, s) { return sum + (s.durationMin || 0) + (s.skillIds || []).length * 15; }, 0);
+  var level = Math.max(1, Math.floor(totalXP / 200) + 1);
+  var xpIntoLevel = totalXP % 200;
 
-  const dayStrings = Array.from(new Set(sessions.map((s) => s.date.slice(0, 10)))).sort();
-  let streak = 0;
+  var dayStrings = Array.from(new Set(state.sessions.map(function (s) { return s.date.slice(0, 10); }))).sort();
+  var streak = 0;
   if (dayStrings.length) {
-    let cursor = new Date();
-    for (let i = 0; i < 365; i++) {
-      const key = cursor.toISOString().slice(0, 10);
-      if (dayStrings.includes(key)) {
+    var cursor = new Date();
+    for (var i = 0; i < 365; i++) {
+      var key = cursor.toISOString().slice(0, 10);
+      if (dayStrings.indexOf(key) !== -1) {
         streak++;
         cursor.setDate(cursor.getDate() - 1);
       } else if (i === 0) {
@@ -264,325 +175,351 @@ function App() {
       } else break;
     }
   }
+  var earnedBadges = BADGES.filter(function (b) { return b.check(state.sessions, streak, clearedSkillSet, stagesDoneSet); });
 
-  const earnedBadges = BADGES.filter((b) => b.check(sessions, streak, clearedSkillSet, stagesDoneSet));
-
-  return (
-    <div style={{ minHeight: "100vh", paddingBottom: 90 }}>
-      <Header level={level} xpIntoLevel={xpIntoLevel} streak={streak} onShowCode={() => setShowCode(true)} />
-      {tab === "map" && (
-        <RoadMap
-          stages={STAGES} stageCleared={stageCleared} stageUnlocked={stageUnlocked}
-          currentStage={currentStage} onSelect={setSelectedStage}
-          skillCleared={skillCleared}
-        />
-      )}
-      {tab === "badges" && <BadgeBoard earned={earnedBadges} all={BADGES} sessions={sessions} />}
-      {tab === "log" && <SessionLog sessions={sessions} stages={STAGES} />}
-      {selectedStage && (
-        <StageDetail
-          stage={selectedStage} onClose={() => setSelectedStage(null)}
-          repsBySkill={repsBySkill} avgComfort={avgComfort} skillCleared={skillCleared}
-        />
-      )}
-      {logOpen && (
-        <LogSessionModal stages={STAGES} currentStage={currentStage} onClose={() => setLogOpen(false)} onSubmit={addSession} />
-      )}
-      {showCode && <CodeModal code={syncCode} onClose={() => setShowCode(false)} />}
-      {error && (
-        <div style={{ position: "fixed", bottom: 90, left: 16, right: 16, background: "#3a1414", border: "1px solid #8B0000", padding: 12, borderRadius: 10, fontSize: 13, zIndex: 40 }}>
-          {error}
-        </div>
-      )}
-      <button onClick={() => setLogOpen(true)} style={fabStyle} className="oswald">
-        {ICON.car} Log a drive
-      </button>
-      <BottomNav tab={tab} setTab={setTab} />
-    </div>
-  );
+  return { repsBySkill: repsBySkill, avgComfort: avgComfort, skillCleared: skillCleared, clearedSkillSet: clearedSkillSet,
+    stageCleared: stageCleared, stageUnlocked: stageUnlocked, stagesDoneSet: stagesDoneSet, currentStage: currentStage,
+    level: level, xpIntoLevel: xpIntoLevel, streak: streak, earnedBadges: earnedBadges };
 }
 
-function CenterMsg({ children }) {
-  return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#F2C230" }}>{children}</div>;
+// ---- render ----
+function render() {
+  var root = document.getElementById("root");
+  if (state.status === "boot") {
+    root.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#F2C230;">Loading the road...</div>';
+    return;
+  }
+  if (state.status === "setup") {
+    root.innerHTML = renderSetup();
+    bindSetup();
+    return;
+  }
+  var d = computeDerived();
+  var html = renderHeader(d) + renderTabContent(d);
+  html += '<button id="fabLog" style="position:fixed;bottom:84px;right:20px;background:#F2C230;color:#15171C;border:none;border-radius:999px;padding:14px 20px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;cursor:pointer;z-index:15;" class="oswald">' + ICON.car + ' Log a drive</button>';
+  html += renderBottomNav();
+  if (state.error) {
+    html += '<div style="position:fixed;bottom:90px;left:16px;right:16px;background:#3a1414;border:1px solid #8B0000;padding:12px;border-radius:10px;font-size:13px;z-index:40;">' + esc(state.error) + '</div>';
+  }
+  root.innerHTML = html;
+
+  if (state.selectedStageId) renderStageModal(d);
+  if (state.logOpen) renderLogModal(d);
+  if (state.showCode) renderCodeModal();
+
+  bindMain(d);
 }
 
-function SetupScreen({ onCreate, onJoin, error }) {
-  const [code, setCode] = useState("");
-  return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
-      <div className="oswald" style={{ fontSize: 26, fontWeight: 700, marginBottom: 6 }}>DRIVER'S ROAD</div>
-      <div style={{ color: "#9A9A9A", fontSize: 14, marginBottom: 32, textAlign: "center" }}>A family driving practice tracker</div>
-
-      <div style={{ width: "100%", maxWidth: 340 }}>
-        <button onClick={onCreate} style={{ width: "100%", padding: 14, borderRadius: 10, border: "none", background: "#F2C230", color: "#15171C", fontWeight: 700, fontSize: 15, cursor: "pointer", marginBottom: 20 }} className="oswald">
-          Start our family's tracker
-        </button>
-        <div style={{ textAlign: "center", color: "#5A5C63", fontSize: 12, marginBottom: 20 }}>&mdash; or join one already started &mdash;</div>
-        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter family code" style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #3A3C43", background: "#26282F", color: "#EDEDED", fontSize: 14, marginBottom: 10 }} />
-        <button onClick={() => onJoin(code)} style={{ width: "100%", padding: 12, borderRadius: 10, border: "1px solid #F2C230", background: "transparent", color: "#F2C230", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
-          Join with code
-        </button>
-        {error && <div style={{ color: "#FF7A45", fontSize: 12, marginTop: 14, textAlign: "center" }}>{error}</div>}
-      </div>
-    </div>
-  );
+function renderSetup() {
+  return '' +
+    '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">' +
+      '<div class="oswald" style="font-size:26px;font-weight:700;margin-bottom:6px;">DRIVER\'S ROAD</div>' +
+      '<div style="color:#9A9A9A;font-size:14px;margin-bottom:32px;text-align:center;">A family driving practice tracker</div>' +
+      '<div style="width:100%;max-width:340px;">' +
+        '<button id="btnCreate" style="width:100%;padding:14px;border-radius:10px;border:none;background:#F2C230;color:#15171C;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:20px;" class="oswald">Start our family\'s tracker</button>' +
+        '<div style="text-align:center;color:#5A5C63;font-size:12px;margin-bottom:20px;">&mdash; or join one already started &mdash;</div>' +
+        '<input id="joinCodeInput" placeholder="Enter family code" style="width:100%;padding:12px;border-radius:8px;border:1px solid #3A3C43;background:#26282F;color:#EDEDED;font-size:14px;margin-bottom:10px;" />' +
+        '<button id="btnJoin" style="width:100%;padding:12px;border-radius:10px;border:1px solid #F2C230;background:transparent;color:#F2C230;font-weight:600;font-size:14px;cursor:pointer;">Join with code</button>' +
+        (state.error ? '<div style="color:#FF7A45;font-size:12px;margin-top:14px;text-align:center;">' + esc(state.error) + '</div>' : '') +
+      '</div>' +
+    '</div>';
 }
 
-function CodeModal({ code, onClose }) {
-  const link = window.location.origin + window.location.pathname + "?sync=" + code;
-  const [copied, setCopied] = useState(false);
-  const copy = (text) => {
-    navigator.clipboard?.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+function bindSetup() {
+  document.getElementById("btnCreate").onclick = function () {
+    state.status = "boot"; render();
+    createBlob({ sessions: [] }).then(function (code) {
+      localStorage.setItem("driver-sync-code", code);
+      state.syncCode = code;
+      loadData(code);
+    }).catch(function () {
+      state.error = "Couldn't create a family code. Check your connection and try again.";
+      state.status = "setup"; render();
+    });
   };
-  return (
-    <div style={overlayStyle} onClick={onClose}>
-      <div style={sheetStyle} onClick={(e) => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-          <div className="oswald" style={{ fontSize: 20, fontWeight: 700 }}>Family sync code</div>
-          <button onClick={onClose} style={closeBtnStyle}>{ICON.close}</button>
-        </div>
-        <div style={{ color: "#9A9A9A", fontSize: 13, marginBottom: 16 }}>
-          Share this link so the rest of the family sees the same progress. They just open it once on their phone.
-        </div>
-        <div style={{ background: "#26282F", padding: 12, borderRadius: 8, fontSize: 13, wordBreak: "break-all", marginBottom: 10 }}>{link}</div>
-        <button onClick={() => copy(link)} style={{ width: "100%", padding: 12, borderRadius: 10, border: "none", background: "#F2C230", color: "#15171C", fontWeight: 700, cursor: "pointer" }}>
-          {copied ? "Copied!" : "Copy link"}
-        </button>
-        <div style={{ color: "#5A5C63", fontSize: 11, marginTop: 14 }}>Code: {code}</div>
-      </div>
-    </div>
-  );
-}
-
-function Header({ level, xpIntoLevel, streak, onShowCode }) {
-  return (
-    <div style={{ padding: "20px 20px 16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div style={{ background: "#1E5631", border: "3px solid #F2F2F2", borderRadius: 8, padding: "10px 16px", boxShadow: "0 2px 0 rgba(0,0,0,0.3)" }}>
-          <div className="oswald" style={{ fontSize: 22, fontWeight: 700, letterSpacing: 1.5, color: "#fff" }}>DRIVER'S ROAD</div>
-        </div>
-        <button onClick={onShowCode} style={{ background: "#26282F", border: "none", borderRadius: 8, padding: "10px 12px", color: "#9A9A9A", cursor: "pointer", fontSize: 16 }}>{ICON.copy}</button>
-      </div>
-      <div style={{ display: "flex", gap: 16, marginTop: 14, alignItems: "center" }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#9A9A9A", marginBottom: 4 }}>
-            <span>Level {level}</span>
-            <span>{xpIntoLevel}/200 XP</span>
-          </div>
-          <div style={{ height: 8, background: "#26282F", borderRadius: 4, overflow: "hidden" }}>
-            <div style={{ width: (xpIntoLevel / 200) * 100 + "%", height: "100%", background: "#F2C230" }} />
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#26282F", padding: "6px 12px", borderRadius: 999 }}>
-          <span>{ICON.flame}</span>
-          <span style={{ fontSize: 13, fontWeight: 600 }}>{streak}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RoadMap({ stages, stageCleared, stageUnlocked, currentStage, onSelect, skillCleared }) {
-  return (
-    <div style={{ padding: "10px 20px 40px", position: "relative" }}>
-      <div style={{ position: "absolute", left: 39, top: 10, bottom: 40, width: 4, background: "repeating-linear-gradient(to bottom, #F2C230 0 14px, transparent 14px 26px)" }} />
-      {stages.map((stage) => {
-        const cleared = stageCleared(stage);
-        const unlocked = stageUnlocked(stage);
-        const isCurrent = currentStage.id === stage.id && !cleared;
-        const doneSkills = stage.skills.filter((sk) => skillCleared(sk.id)).length;
-        return (
-          <div key={stage.id} onClick={() => unlocked && onSelect(stage)} style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 22, cursor: unlocked ? "pointer" : "default", position: "relative", zIndex: 1 }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, background: cleared ? "#1E5631" : isCurrent ? "#F2C230" : "#26282F", border: isCurrent ? "3px solid #fff" : "3px solid #15171C", boxShadow: isCurrent ? "0 0 0 4px rgba(242,194,48,0.25)" : "none" }}>
-              {cleared ? ICON.check : unlocked ? ICON.car : ICON.lock}
-            </div>
-            <div style={{ flex: 1, background: unlocked ? "#1D1F26" : "#181A20", borderRadius: 10, padding: "12px 16px", opacity: unlocked ? 1 : 0.55 }}>
-              <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 1, color: "#F2C230", marginBottom: 2 }}>Stage {stage.id} &middot; {stage.tag}</div>
-              <div className="oswald" style={{ fontSize: 17, fontWeight: 600 }}>{stage.name}</div>
-              {unlocked && <div style={{ fontSize: 12, color: "#9A9A9A", marginTop: 4 }}>{doneSkills}/{stage.skills.length} skills cleared</div>}
-            </div>
-            {unlocked && <span style={{ color: "#5A5C63" }}>{ICON.chevron}</span>}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function StageDetail({ stage, onClose, repsBySkill, avgComfort, skillCleared }) {
-  return (
-    <div style={overlayStyle} onClick={onClose}>
-      <div style={sheetStyle} onClick={(e) => e.stopPropagation()}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-          <div>
-            <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: 1, color: "#F2C230" }}>Stage {stage.id} &middot; {stage.tag}</div>
-            <div className="oswald" style={{ fontSize: 22, fontWeight: 700 }}>{stage.name}</div>
-          </div>
-          <button onClick={onClose} style={closeBtnStyle}>{ICON.close}</button>
-        </div>
-        <div style={{ fontSize: 12, color: "#9A9A9A", marginBottom: 16 }}>A skill clears at 3+ logged reps and average parent comfort of 4/5 or higher.</div>
-        {stage.skills.map((sk) => {
-          const reps = repsBySkill[sk.id] || 0;
-          const comfort = avgComfort(sk.id);
-          const cleared = skillCleared(sk.id);
-          return (
-            <div key={sk.id} style={{ background: "#26282F", borderRadius: 10, padding: 14, marginBottom: 10 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>{sk.name}</div>
-                {cleared ? <span>{ICON.check}</span> : <span style={{ fontSize: 11, color: "#9A9A9A" }}>{reps}/3 reps</span>}
-              </div>
-              <div style={{ display: "flex", gap: 3, marginTop: 8, alignItems: "center" }}>
-                {[1, 2, 3, 4, 5].map((n) => <span key={n} style={{ color: n <= Math.round(comfort) ? "#F2C230" : "#4A4C53", fontSize: 14 }}>{n <= Math.round(comfort) ? ICON.star : ICON.starEmpty}</span>)}
-                <span style={{ fontSize: 11, color: "#9A9A9A", marginLeft: 6 }}>{comfort ? comfort.toFixed(1) + " parent comfort" : "not yet rated"}</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function LogSessionModal({ stages, currentStage, onClose, onSubmit }) {
-  const [stageId, setStageId] = useState(currentStage.id);
-  const [skillIds, setSkillIds] = useState([]);
-  const [duration, setDuration] = useState(30);
-  const [comfort, setComfort] = useState(3);
-  const [notes, setNotes] = useState("");
-  const stage = stages.find((s) => s.id === stageId);
-
-  const toggleSkill = (id) => setSkillIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  const submit = () => {
-    if (skillIds.length === 0) return;
-    onSubmit({ stageId, skillIds, durationMin: Number(duration), parentComfort: Number(comfort), notes });
+  document.getElementById("btnJoin").onclick = function () {
+    var code = document.getElementById("joinCodeInput").value.trim();
+    if (!code) return;
+    localStorage.setItem("driver-sync-code", code);
+    state.syncCode = code;
+    state.status = "boot"; render();
+    loadData(code);
   };
-
-  return (
-    <div style={{ ...overlayStyle, zIndex: 50 }}>
-      <div style={sheetStyle}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-          <div className="oswald" style={{ fontSize: 20, fontWeight: 700 }}>Log this drive</div>
-          <button onClick={onClose} style={closeBtnStyle}>{ICON.close}</button>
-        </div>
-        <Label>Stage</Label>
-        <select value={stageId} onChange={(e) => { setStageId(Number(e.target.value)); setSkillIds([]); }} style={selectStyle}>
-          {stages.map((s) => <option key={s.id} value={s.id}>Stage {s.id}: {s.name}</option>)}
-        </select>
-        <Label>Skills practiced</Label>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
-          {stage.skills.map((sk) => (
-            <button key={sk.id} onClick={() => toggleSkill(sk.id)} style={{ padding: "8px 12px", borderRadius: 999, fontSize: 13, cursor: "pointer", border: skillIds.includes(sk.id) ? "1px solid #F2C230" : "1px solid #3A3C43", background: skillIds.includes(sk.id) ? "rgba(242,194,48,0.15)" : "transparent", color: skillIds.includes(sk.id) ? "#F2C230" : "#EDEDED" }}>
-              {sk.name}
-            </button>
-          ))}
-        </div>
-        <Label>Duration (minutes)</Label>
-        <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} style={selectStyle} min={5} />
-        <Label>Parent comfort rating for this session</Label>
-        <div style={{ display: "flex", gap: 6, marginBottom: 4 }}>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} onClick={() => setComfort(n)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, fontSize: 24, color: n <= comfort ? "#F2C230" : "#4A4C53" }}>
-              {n <= comfort ? ICON.star : ICON.starEmpty}
-            </button>
-          ))}
-        </div>
-        <div style={{ fontSize: 11, color: "#9A9A9A", marginBottom: 16 }}>1 = white-knuckle, 5 = fully trust her here</div>
-        <Label>Notes (optional)</Label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} style={{ ...selectStyle, resize: "none" }} placeholder="What went well, what to work on next time..." />
-        <button onClick={submit} disabled={skillIds.length === 0} style={{ width: "100%", marginTop: 8, padding: 14, borderRadius: 10, border: "none", background: skillIds.length === 0 ? "#3A3C43" : "#F2C230", color: skillIds.length === 0 ? "#7A7C83" : "#15171C", fontWeight: 700, fontSize: 15, cursor: skillIds.length === 0 ? "default" : "pointer" }} className="oswald">
-          Save session
-        </button>
-      </div>
-    </div>
-  );
 }
 
-function Label({ children }) {
-  return <div style={{ fontSize: 12, color: "#9A9A9A", marginBottom: 6, marginTop: 14, textTransform: "uppercase", letterSpacing: 0.5 }}>{children}</div>;
+function loadData(code) {
+  getBlob(code).then(function (data) {
+    state.sessions = data.sessions || [];
+    state.status = "ready";
+    state.error = null;
+    render();
+  }).catch(function () {
+    state.error = "Couldn't find that family code. Check it and try again.";
+    state.status = "setup";
+    localStorage.removeItem("driver-sync-code");
+    state.syncCode = null;
+    render();
+  });
 }
 
-function BadgeBoard({ earned, all, sessions }) {
-  const earnedIds = new Set(earned.map((b) => b.id));
-  return (
-    <div style={{ padding: "10px 20px 40px" }}>
-      <div className="oswald" style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Badges</div>
-      <div style={{ fontSize: 13, color: "#9A9A9A", marginBottom: 18 }}>{earned.length}/{all.length} earned &middot; {sessions.length} drives logged</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        {all.map((b) => {
-          const got = earnedIds.has(b.id);
-          return (
-            <div key={b.id} style={{ background: got ? "#26282F" : "#181A20", border: got ? "1px solid #F2C230" : "1px solid #26282F", borderRadius: 12, padding: 14, opacity: got ? 1 : 0.5, textAlign: "center" }}>
-              <div style={{ fontSize: 26, marginBottom: 6 }}>{ICON.award}</div>
-              <div style={{ fontWeight: 600, fontSize: 13 }}>{b.name}</div>
-              <div style={{ fontSize: 11, color: "#9A9A9A", marginTop: 2 }}>{b.desc}</div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+function renderHeader(d) {
+  return '' +
+    '<div style="padding:20px 20px 16px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
+        '<div style="background:#1E5631;border:3px solid #F2F2F2;border-radius:8px;padding:10px 16px;box-shadow:0 2px 0 rgba(0,0,0,0.3);">' +
+          '<div class="oswald" style="font-size:22px;font-weight:700;letter-spacing:1.5px;color:#fff;">DRIVER\'S ROAD</div>' +
+        '</div>' +
+        '<button id="btnShowCode" style="background:#26282F;border:none;border-radius:8px;padding:10px 12px;color:#9A9A9A;cursor:pointer;font-size:16px;">' + ICON.copy + '</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:16px;margin-top:14px;align-items:center;">' +
+        '<div style="flex:1;">' +
+          '<div style="display:flex;justify-content:space-between;font-size:12px;color:#9A9A9A;margin-bottom:4px;"><span>Level ' + d.level + '</span><span>' + d.xpIntoLevel + '/200 XP</span></div>' +
+          '<div style="height:8px;background:#26282F;border-radius:4px;overflow:hidden;"><div style="width:' + ((d.xpIntoLevel / 200) * 100) + '%;height:100%;background:#F2C230;"></div></div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:4px;background:#26282F;padding:6px 12px;border-radius:999px;"><span>' + ICON.flame + '</span><span style="font-size:13px;font-weight:600;">' + d.streak + '</span></div>' +
+      '</div>' +
+    '</div>';
 }
 
-function SessionLog({ sessions, stages }) {
-  const sorted = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
-  return (
-    <div style={{ padding: "10px 20px 40px" }}>
-      <div className="oswald" style={{ fontSize: 20, fontWeight: 700, marginBottom: 14 }}>Drive history</div>
-      {sorted.length === 0 && <div style={{ color: "#9A9A9A", fontSize: 14 }}>No sessions logged yet. Tap "Log a drive" to start.</div>}
-      {sorted.map((s) => {
-        const stage = stages.find((st) => st.id === s.stageId);
-        const skillNames = (s.skillIds || []).map((id) => stage?.skills.find((sk) => sk.id === id)?.name).filter(Boolean);
-        return (
-          <div key={s.id} style={{ background: "#1D1F26", borderRadius: 10, padding: 14, marginBottom: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>{stage?.name}</div>
-              <div style={{ fontSize: 12, color: "#9A9A9A" }}>{new Date(s.date).toLocaleDateString()}</div>
-            </div>
-            <div style={{ fontSize: 12, color: "#9A9A9A", marginTop: 4 }}>{skillNames.join(", ")}</div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-              <span style={{ fontSize: 12 }}>{s.durationMin} min</span>
-              <div style={{ display: "flex", gap: 2 }}>
-                {[1, 2, 3, 4, 5].map((n) => <span key={n} style={{ color: n <= s.parentComfort ? "#F2C230" : "#4A4C53", fontSize: 12 }}>{n <= s.parentComfort ? ICON.star : ICON.starEmpty}</span>)}
-              </div>
-            </div>
-            {s.notes && <div style={{ fontSize: 12, color: "#B5B5B5", marginTop: 8, fontStyle: "italic" }}>"{s.notes}"</div>}
-          </div>
-        );
-      })}
-    </div>
-  );
+function renderTabContent(d) {
+  if (state.tab === "map") return renderRoadMap(d);
+  if (state.tab === "badges") return renderBadgeBoard(d);
+  if (state.tab === "log") return renderSessionLog(d);
+  return "";
 }
 
-function BottomNav({ tab, setTab }) {
-  const items = [
-    { id: "map", label: "Road", icon: ICON.pin },
-    { id: "log", label: "History", icon: ICON.car },
-    { id: "badges", label: "Badges", icon: ICON.award },
-  ];
-  return (
-    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#1D1F26", borderTop: "1px solid #26282F", display: "flex", padding: "10px 0", zIndex: 10 }}>
-      {items.map((it) => {
-        const active = tab === it.id;
-        return (
-          <button key={it.id} onClick={() => setTab(it.id)} style={{ flex: 1, background: "none", border: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", color: active ? "#F2C230" : "#7A7C83" }}>
-            <span style={{ fontSize: 18 }}>{it.icon}</span>
-            <span style={{ fontSize: 11 }}>{it.label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
+function renderRoadMap(d) {
+  var html = '<div style="padding:10px 20px 40px;position:relative;">';
+  html += '<div style="position:absolute;left:39px;top:10px;bottom:40px;width:4px;background:repeating-linear-gradient(to bottom,#F2C230 0 14px,transparent 14px 26px);"></div>';
+  STAGES.forEach(function (stage) {
+    var cleared = d.stageCleared(stage);
+    var unlocked = d.stageUnlocked(stage);
+    var isCurrent = d.currentStage.id === stage.id && !cleared;
+    var doneSkills = stage.skills.filter(function (sk) { return d.skillCleared(sk.id); }).length;
+    var circleIcon = cleared ? ICON.check : (unlocked ? ICON.car : ICON.lock);
+    html += '<div class="stageRow" data-stage="' + stage.id + '" style="display:flex;align-items:center;gap:16px;margin-bottom:22px;cursor:' + (unlocked ? "pointer" : "default") + ';position:relative;z-index:1;">' +
+      '<div style="width:56px;height:56px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;background:' + (cleared ? "#1E5631" : isCurrent ? "#F2C230" : "#26282F") + ';border:' + (isCurrent ? "3px solid #fff" : "3px solid #15171C") + ';box-shadow:' + (isCurrent ? "0 0 0 4px rgba(242,194,48,0.25)" : "none") + ';">' + circleIcon + '</div>' +
+      '<div style="flex:1;background:' + (unlocked ? "#1D1F26" : "#181A20") + ';border-radius:10px;padding:12px 16px;opacity:' + (unlocked ? 1 : 0.55) + ';">' +
+        '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#F2C230;margin-bottom:2px;">Stage ' + stage.id + ' &middot; ' + esc(stage.tag) + '</div>' +
+        '<div class="oswald" style="font-size:17px;font-weight:600;">' + esc(stage.name) + '</div>' +
+        (unlocked ? '<div style="font-size:12px;color:#9A9A9A;margin-top:4px;">' + doneSkills + '/' + stage.skills.length + ' skills cleared</div>' : '') +
+      '</div>' +
+      (unlocked ? '<span style="color:#5A5C63;">' + ICON.chevron + '</span>' : '') +
+    '</div>';
+  });
+  html += '</div>';
+  return html;
 }
 
-const overlayStyle = { position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 20, display: "flex", alignItems: "flex-end" };
-const sheetStyle = { background: "#1D1F26", width: "100%", borderRadius: "20px 20px 0 0", padding: 24, maxHeight: "88vh", overflowY: "auto" };
-const closeBtnStyle = { background: "none", border: "none", color: "#9A9A9A", cursor: "pointer", fontSize: 18 };
-const selectStyle = { width: "100%", padding: 12, borderRadius: 8, border: "1px solid #3A3C43", background: "#26282F", color: "#EDEDED", fontSize: 14, marginBottom: 4 };
-const fabStyle = { position: "fixed", bottom: 84, right: 20, background: "#F2C230", color: "#15171C", border: "none", borderRadius: 999, padding: "14px 20px", fontWeight: 700, fontSize: 14, boxShadow: "0 4px 14px rgba(0,0,0,0.4)", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", zIndex: 15 };
+function renderBadgeBoard(d) {
+  var earnedIds = new Set(d.earnedBadges.map(function (b) { return b.id; }));
+  var html = '<div style="padding:10px 20px 40px;">' +
+    '<div class="oswald" style="font-size:20px;font-weight:700;margin-bottom:4px;">Badges</div>' +
+    '<div style="font-size:13px;color:#9A9A9A;margin-bottom:18px;">' + d.earnedBadges.length + '/' + BADGES.length + ' earned &middot; ' + state.sessions.length + ' drives logged</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+  BADGES.forEach(function (b) {
+    var got = earnedIds.has(b.id);
+    html += '<div style="background:' + (got ? "#26282F" : "#181A20") + ';border:' + (got ? "1px solid #F2C230" : "1px solid #26282F") + ';border-radius:12px;padding:14px;opacity:' + (got ? 1 : 0.5) + ';text-align:center;">' +
+      '<div style="font-size:26px;margin-bottom:6px;">' + ICON.award + '</div>' +
+      '<div style="font-weight:600;font-size:13px;">' + esc(b.name) + '</div>' +
+      '<div style="font-size:11px;color:#9A9A9A;margin-top:2px;">' + esc(b.desc) + '</div>' +
+    '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+function renderSessionLog(d) {
+  var sorted = state.sessions.slice().sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+  var html = '<div style="padding:10px 20px 40px;"><div class="oswald" style="font-size:20px;font-weight:700;margin-bottom:14px;">Drive history</div>';
+  if (!sorted.length) html += '<div style="color:#9A9A9A;font-size:14px;">No sessions logged yet. Tap "Log a drive" to start.</div>';
+  sorted.forEach(function (s) {
+    var stage = STAGES.find(function (st) { return st.id === s.stageId; });
+    var skillNames = (s.skillIds || []).map(function (id) {
+      var sk = stage && stage.skills.find(function (x) { return x.id === id; });
+      return sk ? sk.name : null;
+    }).filter(Boolean);
+    var stars = "";
+    for (var n = 1; n <= 5; n++) stars += '<span style="color:' + (n <= s.parentComfort ? "#F2C230" : "#4A4C53") + ';font-size:12px;">' + (n <= s.parentComfort ? ICON.star : ICON.starEmpty) + '</span>';
+    html += '<div style="background:#1D1F26;border-radius:10px;padding:14px;margin-bottom:10px;">' +
+      '<div style="display:flex;justify-content:space-between;"><div style="font-weight:600;font-size:14px;">' + esc(stage ? stage.name : "") + '</div><div style="font-size:12px;color:#9A9A9A;">' + new Date(s.date).toLocaleDateString() + '</div></div>' +
+      '<div style="font-size:12px;color:#9A9A9A;margin-top:4px;">' + esc(skillNames.join(", ")) + '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-size:12px;">' + s.durationMin + ' min</span><div style="display:flex;gap:2px;">' + stars + '</div></div>' +
+      (s.notes ? '<div style="font-size:12px;color:#B5B5B5;margin-top:8px;font-style:italic;">"' + esc(s.notes) + '"</div>' : '') +
+    '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderBottomNav() {
+  var items = [ { id: "map", label: "Road", icon: ICON.pin }, { id: "log", label: "History", icon: ICON.car }, { id: "badges", label: "Badges", icon: ICON.award } ];
+  var html = '<div style="position:fixed;bottom:0;left:0;right:0;background:#1D1F26;border-top:1px solid #26282F;display:flex;padding:10px 0;z-index:10;">';
+  items.forEach(function (it) {
+    var active = state.tab === it.id;
+    html += '<button class="navBtn" data-tab="' + it.id + '" style="flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:' + (active ? "#F2C230" : "#7A7C83") + ';"><span style="font-size:18px;">' + it.icon + '</span><span style="font-size:11px;">' + it.label + '</span></button>';
+  });
+  html += '</div>';
+  return html;
+}
+
+var overlayStyle = "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:20;display:flex;align-items:flex-end;";
+var sheetStyle = "background:#1D1F26;width:100%;border-radius:20px 20px 0 0;padding:24px;max-height:88vh;overflow-y:auto;";
+
+function renderStageModal(d) {
+  var stage = STAGES.find(function (s) { return s.id === state.selectedStageId; });
+  if (!stage) return;
+  var overlay = document.createElement("div");
+  overlay.id = "stageOverlay";
+  overlay.setAttribute("style", overlayStyle);
+  var body = '<div style="' + sheetStyle + '" id="stageSheet">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;"><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#F2C230;">Stage ' + stage.id + ' &middot; ' + esc(stage.tag) + '</div><div class="oswald" style="font-size:22px;font-weight:700;">' + esc(stage.name) + '</div></div><button id="closeStage" style="background:none;border:none;color:#9A9A9A;cursor:pointer;font-size:18px;">' + ICON.close + '</button></div>' +
+    '<div style="font-size:12px;color:#9A9A9A;margin-bottom:16px;">A skill clears at 3+ logged reps and average parent comfort of 4/5 or higher.</div>';
+  stage.skills.forEach(function (sk) {
+    var reps = d.repsBySkill[sk.id] || 0;
+    var comfort = d.avgComfort(sk.id);
+    var cleared = d.skillCleared(sk.id);
+    var stars = "";
+    for (var n = 1; n <= 5; n++) stars += '<span style="color:' + (n <= Math.round(comfort) ? "#F2C230" : "#4A4C53") + ';font-size:14px;">' + (n <= Math.round(comfort) ? ICON.star : ICON.starEmpty) + '</span>';
+    body += '<div style="background:#26282F;border-radius:10px;padding:14px;margin-bottom:10px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:600;font-size:14px;">' + esc(sk.name) + '</div>' + (cleared ? '<span>' + ICON.check + '</span>' : '<span style="font-size:11px;color:#9A9A9A;">' + reps + '/3 reps</span>') + '</div>' +
+      '<div style="display:flex;gap:3px;margin-top:8px;align-items:center;">' + stars + '<span style="font-size:11px;color:#9A9A9A;margin-left:6px;">' + (comfort ? comfort.toFixed(1) + " parent comfort" : "not yet rated") + '</span></div>' +
+    '</div>';
+  });
+  body += '</div>';
+  overlay.innerHTML = body;
+  document.getElementById("root").appendChild(overlay);
+  overlay.onclick = function (e) { if (e.target === overlay) { state.selectedStageId = null; render(); } };
+  document.getElementById("closeStage").onclick = function () { state.selectedStageId = null; render(); };
+}
+
+function renderLogModal(d) {
+  if (!state.logDraft) {
+    state.logDraft = { stageId: d.currentStage.id, skillIds: [], durationMin: 30, parentComfort: 3, notes: "" };
+  }
+  var draft = state.logDraft;
+  var stage = STAGES.find(function (s) { return s.id === draft.stageId; });
+  var overlay = document.createElement("div");
+  overlay.id = "logOverlay";
+  overlay.setAttribute("style", overlayStyle.replace("z-index:20", "z-index:50"));
+
+  var stageOptions = STAGES.map(function (s) { return '<option value="' + s.id + '"' + (s.id === draft.stageId ? " selected" : "") + '>Stage ' + s.id + ': ' + esc(s.name) + '</option>'; }).join("");
+  var skillChips = stage.skills.map(function (sk) {
+    var on = draft.skillIds.indexOf(sk.id) !== -1;
+    return '<button class="skillChip" data-skill="' + sk.id + '" style="padding:8px 12px;border-radius:999px;font-size:13px;cursor:pointer;border:' + (on ? "1px solid #F2C230" : "1px solid #3A3C43") + ';background:' + (on ? "rgba(242,194,48,0.15)" : "transparent") + ';color:' + (on ? "#F2C230" : "#EDEDED") + ';">' + esc(sk.name) + '</button>';
+  }).join("");
+  var starBtns = "";
+  for (var n = 1; n <= 5; n++) starBtns += '<button class="comfortStar" data-n="' + n + '" style="background:none;border:none;cursor:pointer;padding:4px;font-size:24px;color:' + (n <= draft.parentComfort ? "#F2C230" : "#4A4C53") + ';">' + (n <= draft.parentComfort ? ICON.star : ICON.starEmpty) + '</button>';
+
+  var selectStyle = "width:100%;padding:12px;border-radius:8px;border:1px solid #3A3C43;background:#26282F;color:#EDEDED;font-size:14px;margin-bottom:4px;";
+
+  overlay.innerHTML = '<div style="' + sheetStyle + '">' +
+    '<div style="display:flex;justify-content:space-between;margin-bottom:16px;"><div class="oswald" style="font-size:20px;font-weight:700;">Log this drive</div><button id="closeLog" style="background:none;border:none;color:#9A9A9A;cursor:pointer;font-size:18px;">' + ICON.close + '</button></div>' +
+    '<div style="font-size:12px;color:#9A9A9A;margin-bottom:6px;margin-top:14px;text-transform:uppercase;letter-spacing:0.5px;">Stage</div>' +
+    '<select id="stageSelect" style="' + selectStyle + '">' + stageOptions + '</select>' +
+    '<div style="font-size:12px;color:#9A9A9A;margin-bottom:6px;margin-top:14px;text-transform:uppercase;letter-spacing:0.5px;">Skills practiced</div>' +
+    '<div id="skillChips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;">' + skillChips + '</div>' +
+    '<div style="font-size:12px;color:#9A9A9A;margin-bottom:6px;margin-top:14px;text-transform:uppercase;letter-spacing:0.5px;">Duration (minutes)</div>' +
+    '<input id="durationInput" type="number" min="5" value="' + draft.durationMin + '" style="' + selectStyle + '" />' +
+    '<div style="font-size:12px;color:#9A9A9A;margin-bottom:6px;margin-top:14px;text-transform:uppercase;letter-spacing:0.5px;">Parent comfort rating for this session</div>' +
+    '<div id="comfortStars" style="display:flex;gap:6px;margin-bottom:4px;">' + starBtns + '</div>' +
+    '<div style="font-size:11px;color:#9A9A9A;margin-bottom:16px;">1 = white-knuckle, 5 = fully trust her here</div>' +
+    '<div style="font-size:12px;color:#9A9A9A;margin-bottom:6px;margin-top:14px;text-transform:uppercase;letter-spacing:0.5px;">Notes (optional)</div>' +
+    '<textarea id="notesInput" rows="3" placeholder="What went well, what to work on next time..." style="' + selectStyle + 'resize:none;">' + esc(draft.notes) + '</textarea>' +
+    '<button id="saveSession" style="width:100%;margin-top:8px;padding:14px;border-radius:10px;border:none;background:' + (draft.skillIds.length === 0 ? "#3A3C43" : "#F2C230") + ';color:' + (draft.skillIds.length === 0 ? "#7A7C83" : "#15171C") + ';font-weight:700;font-size:15px;cursor:pointer;" class="oswald">Save session</button>' +
+  '</div>';
+
+  document.getElementById("root").appendChild(overlay);
+
+  document.getElementById("closeLog").onclick = function () { state.logOpen = false; state.logDraft = null; render(); };
+  document.getElementById("stageSelect").onchange = function (e) { draft.stageId = Number(e.target.value); draft.skillIds = []; render(); };
+  document.getElementById("durationInput").oninput = function (e) { draft.durationMin = e.target.value; };
+  document.getElementById("notesInput").oninput = function (e) { draft.notes = e.target.value; };
+  Array.prototype.forEach.call(overlay.querySelectorAll(".skillChip"), function (btn) {
+    btn.onclick = function () {
+      var id = btn.getAttribute("data-skill");
+      var idx = draft.skillIds.indexOf(id);
+      if (idx === -1) draft.skillIds.push(id); else draft.skillIds.splice(idx, 1);
+      render();
+    };
+  });
+  Array.prototype.forEach.call(overlay.querySelectorAll(".comfortStar"), function (btn) {
+    btn.onclick = function () { draft.parentComfort = Number(btn.getAttribute("data-n")); render(); };
+  });
+  document.getElementById("saveSession").onclick = function () {
+    if (draft.skillIds.length === 0) return;
+    var entry = { stageId: draft.stageId, skillIds: draft.skillIds.slice(), durationMin: Number(draft.durationMin), parentComfort: Number(draft.parentComfort), notes: draft.notes, id: Date.now(), date: new Date().toISOString() };
+    state.sessions.push(entry);
+    state.logOpen = false;
+    state.logDraft = null;
+    render();
+    putBlob(state.syncCode, { sessions: state.sessions }).catch(function () {
+      state.error = "Saved locally, but couldn't sync. Check connection.";
+      render();
+    });
+  };
+}
+
+function renderCodeModal() {
+  var link = window.location.origin + window.location.pathname + "?sync=" + state.syncCode;
+  var overlay = document.createElement("div");
+  overlay.id = "codeOverlay";
+  overlay.setAttribute("style", overlayStyle);
+  overlay.innerHTML = '<div style="' + sheetStyle + '" id="codeSheet">' +
+    '<div style="display:flex;justify-content:space-between;margin-bottom:16px;"><div class="oswald" style="font-size:20px;font-weight:700;">Family sync code</div><button id="closeCode" style="background:none;border:none;color:#9A9A9A;cursor:pointer;font-size:18px;">' + ICON.close + '</button></div>' +
+    '<div style="color:#9A9A9A;font-size:13px;margin-bottom:16px;">Share this link so the rest of the family sees the same progress. They just open it once on their phone.</div>' +
+    '<div style="background:#26282F;padding:12px;border-radius:8px;font-size:13px;word-break:break-all;margin-bottom:10px;">' + esc(link) + '</div>' +
+    '<button id="copyLink" style="width:100%;padding:12px;border-radius:10px;border:none;background:#F2C230;color:#15171C;font-weight:700;cursor:pointer;">Copy link</button>' +
+    '<div style="color:#5A5C63;font-size:11px;margin-top:14px;">Code: ' + esc(state.syncCode) + '</div>' +
+  '</div>';
+  document.getElementById("root").appendChild(overlay);
+  overlay.onclick = function (e) { if (e.target === overlay) { state.showCode = false; render(); } };
+  document.getElementById("closeCode").onclick = function () { state.showCode = false; render(); };
+  document.getElementById("copyLink").onclick = function () {
+    if (navigator.clipboard) navigator.clipboard.writeText(link);
+    document.getElementById("copyLink").textContent = "Copied!";
+    setTimeout(function () { var b = document.getElementById("copyLink"); if (b) b.textContent = "Copy link"; }, 1500);
+  };
+}
+
+function bindMain(d) {
+  Array.prototype.forEach.call(document.querySelectorAll(".stageRow"), function (row) {
+    row.onclick = function () {
+      var id = Number(row.getAttribute("data-stage"));
+      var stage = STAGES.find(function (s) { return s.id === id; });
+      if (d.stageUnlocked(stage)) { state.selectedStageId = id; render(); }
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".navBtn"), function (btn) {
+    btn.onclick = function () { state.tab = btn.getAttribute("data-tab"); render(); };
+  });
+  var fab = document.getElementById("fabLog");
+  if (fab) fab.onclick = function () { state.logOpen = true; render(); };
+  var showCodeBtn = document.getElementById("btnShowCode");
+  if (showCodeBtn) showCodeBtn.onclick = function () { state.showCode = true; render(); };
+}
+
+// ---- boot ----
+function boot() {
+  var urlCode = getUrlSyncCode();
+  var storedCode = localStorage.getItem("driver-sync-code");
+  var code = urlCode || storedCode;
+  if (code) {
+    localStorage.setItem("driver-sync-code", code);
+    state.syncCode = code;
+    loadData(code);
+    setInterval(function () { if (state.syncCode) loadData(state.syncCode); }, 20000);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible" && state.syncCode) loadData(state.syncCode);
+    });
+  } else {
+    state.status = "setup";
+    render();
+  }
+}
+
+boot();
+})();
 </script>
 </body>
 </html>
